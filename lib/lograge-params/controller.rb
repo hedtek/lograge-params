@@ -14,7 +14,7 @@ module LogrageParams
         payload[:user] = "None"
       else
         devise_users.each do |type, user|
-          payload[type] = current_user.id
+          payload[type] = user.id
         end
       end
     end
