@@ -1,5 +1,8 @@
 require 'useragent'
 
+# Just use lograge unless disabled
+ENV['USE_LOGRAGE'] ||= 'true'
+
 module LogrageParams
   class Engine < ::Rails::Engine
     config.lograge.custom_options = lambda do |event|
@@ -27,15 +30,13 @@ module LogrageParams
       browser_log.merge(params).merge(event.payload[:users])
     end
 
+    if ENV['USE_LOGRAGE'] == 'true'
+      config.lograge.enabled = true
+    else
+      config.lograge.enabled = false
+    end
 
     initializer 'lograge-params.add_controller_hook' do
-      ENV['USE_LOGRAGE'] ||= 'true' if Rails.env.production?
-
-      if ENV['USE_LOGRAGE'] == 'true'
-        config.lograge.enabled = true
-      else
-        config.lograge.enabled = false
-      end
 
       ActiveSupport.on_load :action_controller do
         ActionController::Base.send(:include, LogrageParams::Controller)
