@@ -3,6 +3,7 @@ ENV['USE_LOGRAGE'] ||= 'true' if Rails.env.production?
 module LogrageParams
   class Engine < ::Rails::Engine
     if ENV['USE_LOGRAGE'] == 'true'
+      require 'useragent'
       config.lograge.enabled = true
 
       config.lograge.custom_options = lambda do |event|
@@ -19,8 +20,15 @@ module LogrageParams
           end
         end
 
+        user_agent = UserAgent.parse(event.payload[:browser])
+        browser_log = {
+          browser: user_agent.browser,
+          platform: user_agent.platform,
+          browser_version: user_agent.version
+        }
+
         params = event.payload[:params].reject { |key,_| unwanted_keys.include? key }.each_with_object({}, &flattener)
-        {:browser => event.payload[:browser] }.merge(params).merge(event.payload[:users])
+        browser_log.merge(params).merge(event.payload[:users])
       end
 
       initializer 'lograge-params.add_controller_hook' do
