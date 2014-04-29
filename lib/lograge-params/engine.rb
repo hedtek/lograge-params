@@ -27,7 +27,7 @@ module LogrageParams
       }
 
       params = event.payload[:params].reject { |key,_| unwanted_keys.include? key }.each_with_object({}, &flattener)
-      browser_log.merge(params).merge(event.payload[:users])
+      config.lograge.static_data.merge(browser_log).merge(params).merge(event.payload[:users])
     end
 
     if ENV['USE_LOGRAGE'] == 'true'
@@ -36,8 +36,9 @@ module LogrageParams
       config.lograge.enabled = false
     end
 
-    initializer 'lograge-params.add_controller_hook' do
+    config.lograge.static_data ||= {}
 
+    initializer 'lograge-params.add_controller_hook' do
       ActiveSupport.on_load :action_controller do
         ActionController::Base.send(:include, LogrageParams::Controller)
       end
