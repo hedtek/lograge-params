@@ -20,7 +20,7 @@ module LogrageParams
         end
 
         params = event.payload[:params].reject { |key,_| unwanted_keys.include? key }.each_with_object({}, &flattener)
-        {:user => event.payload[:user], :browser => event.payload[:browser] }.merge(params)
+        {:browser => event.payload[:browser] }.merge(params).merge(event.payload[:users])
       end
 
       initializer 'lograge-params.add_controller_hook' do

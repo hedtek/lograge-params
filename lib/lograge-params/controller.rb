@@ -9,12 +9,14 @@ module LogrageParams
         u = send(m)
         hsh[user_type] = u if u
       end
+      payload[:browser] = request.user_agent
 
+      payload[:users] = {}
       if devise_users.empty?
-        payload[:user] = "None"
+        payload[:users][:user] = "None"
       else
         devise_users.each do |type, user|
-          payload[type] = user.id
+          payload[:users][type] = user.id
         end
       end
     end
