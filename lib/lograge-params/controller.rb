@@ -3,7 +3,7 @@ module LogrageParams
     def append_info_to_payload(payload)
       super
 
-      if ENV["USE_LOGRAGE"]
+      if Rails.application.config.lograge.enabled
         payload[:params] = request.params
 
         payload[:users] = {}
