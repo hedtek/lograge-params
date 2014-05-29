@@ -23,9 +23,11 @@ module LogrageParams
         if event.payload[:browser]
           user_agent = UserAgent.parse(event.payload[:browser])
           browser_log = {
-            browser: user_agent.browser,
-            platform: user_agent.platform,
-            browser_version: user_agent.version
+            browser: user_agent.browser.gsub(" ", "_"),
+            platform: user_agent.platform.gsub(" ", "_"),
+            browser_version: user_agent.version,
+            user_agent: event.payload[:browser].gsub(" ", "_"),
+            combined: "#{user_agent.platform}-#{user_agent.browser}-#{user_agent.version}".gsub(" ", "_")
           }
         else
           browser_log = {
