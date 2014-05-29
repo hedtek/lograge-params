@@ -23,12 +23,14 @@ module LogrageParams
         if event.payload[:browser]
           user_agent = UserAgent.parse(event.payload[:browser])
           browser_log = {
-            browser: user_agent.browser.gsub(" ", "_"),
-            platform: user_agent.platform.gsub(" ", "_"),
+            user_agent: event.payload[:browser],
+            browser: user_agent.browser,
+            platform: user_agent.platform,
             browser_version: user_agent.version,
-            user_agent: event.payload[:browser].gsub(" ", "_"),
-            combined: "#{user_agent.platform}-#{user_agent.browser}-#{user_agent.version}".gsub(" ", "_")
+            browser_combined: "#{user_agent.browser}-#{user_agent.version}",
+            platform_combined: "#{user_agent.platform}-#{user_agent.browser}-#{user_agent.version}"
           }
+
         else
           browser_log = {
             browser: "Unknown"
@@ -36,6 +38,9 @@ module LogrageParams
         end
 
         params = event.payload[:params].reject { |key,_| unwanted_keys.include? key }.each_with_object({}, &flattener)
+
+        params.values.each{|v| v.gsub!(" ", "_")}
+        browser_log.values.each{|v| v.gsub!(" ", "_")}
         config.lograge.static_data.merge(browser_log).merge(params).merge(event.payload[:users])
       rescue
         {}
