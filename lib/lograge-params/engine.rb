@@ -1,59 +1,65 @@
 require 'useragent'
 
-# Just use lograge unless disabled
-ENV['USE_LOGRAGE'] ||= 'true'
-
 module LogrageParams
   class Engine < ::Rails::Engine
     config.lograge.custom_options = lambda do |event|
       begin
-        unwanted_keys = %w[format action controller
-                           utf8 authenticity_token commit]
         flattener = proc do |(k, v), h, prefix='params'|
           key = [prefix, k].compact.join("/")
-          if %w(password password_confirmation).include? k
+          if config.lograge.filter_keys.include? k
             h[key] = "[FILTERED]"
           elsif v.is_a?(Hash)
             v.each {|p| flattener.call(p, h, key)}
           else
-            h[key] = "'#{v}'"
+            h[key] = "'#{v}'".gsub(" ", "_")
           end
         end
 
-        if event.payload[:browser]
-          user_agent = UserAgent.parse(event.payload[:browser])
-          browser_log = {
-            user_agent: event.payload[:browser],
-            browser: user_agent.browser,
-            platform: user_agent.platform,
-            browser_version: user_agent.version,
-            browser_combined: "#{user_agent.browser}-#{user_agent.version}",
-            platform_combined: "#{user_agent.platform}-#{user_agent.browser}-#{user_agent.version}"
-          }
-
+        if config.lograge.log_browser
+          if event.payload[:browser]
+            user_agent = UserAgent.parse(event.payload[:browser])
+            browser_log = {
+              user_agent: event.payload[:browser].gsub(" ", "_"),
+              browser: user_agent.browser.gsub(" ", "_"),
+              platform: user_agent.platform.gsub(" ", "_"),
+              browser_version: user_agent.version.gsub(" ", "_"),
+              browser_combined: "#{user_agent.browser}-#{user_agent.version}".gsub(" ", "_"),
+              platform_combined: "#{user_agent.platform}-#{user_agent.browser}-#{user_agent.version}".gsub(" ", "_")
+            }
+          else
+            browser_log = {
+              browser: "Unknown"
+            }
+          end
         else
-          browser_log = {
-            browser: "Unknown"
-          }
+          browser_log = {}
         end
 
-        params = event.payload[:params].reject { |key,_| unwanted_keys.include? key }.each_with_object({}, &flattener)
+        if config.lograge.log_params
+          params = event.payload[:params].reject { |key,_| config.lograge.ignore_keys.include? key }.each_with_object({}, &flattener)
+        else
+          params = {}
+        end
 
-        params.values.each{|v| v.gsub!(" ", "_")}
-        browser_log.values.each{|v| v.gsub!(" ", "_")}
-        config.lograge.static_data.merge(browser_log).merge(params).merge(event.payload[:users])
+        if config.lograge.log_users
+          users = event.payload[:users]
+        else
+          users = {}
+        end
+
+        config.lograge.static_data.merge(browser_log).merge(params).merge(users)
       rescue
         {}
       end
     end
 
-    if ENV['USE_LOGRAGE'] == 'true'
-      config.lograge.enabled = true
-    else
-      config.lograge.enabled = false
-    end
-
+    config.lograge.enabled = true
     config.lograge.static_data ||= {}
+    config.lograge.ignore_keys = %w[format action controller utf8 authenticity_token commit]
+    config.lograge.filter_keys = %w(password password_confirmation)
+    config.lograge.log_users = true
+    config.lograge.log_params = true
+    config.lograge.log_browser = true
 
     initializer 'lograge-params.add_controller_hook' do
       ActiveSupport.on_load :action_controller do
