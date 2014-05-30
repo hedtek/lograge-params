@@ -49,6 +49,7 @@ module LogrageParams
 
         config.lograge.static_data.merge(browser_log).merge(params).merge(users)
       rescue
+        puts "Error logging request"
         {}
       end
     end
