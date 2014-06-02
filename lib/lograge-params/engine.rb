@@ -42,7 +42,7 @@ module LogrageParams
         end
 
         if config.lograge.log_users
-          users = event.payload[:users]
+          users = event.payload[:users] || {}
         else
           users = {}
         end
