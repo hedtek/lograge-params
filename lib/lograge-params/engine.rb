@@ -49,7 +49,7 @@ module LogrageParams
 
         config.lograge.static_data.merge(browser_log).merge(params).merge(users)
       rescue => e
-        Rails.logger.warn("Error logging request: #{e.message}")
+        Rails.logger.warn("Error logging request: #{e.message}\n#{e.stacktrace.join("\n\t")}")
         {}
       end
     end
