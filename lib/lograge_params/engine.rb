@@ -3,10 +3,16 @@ module LogrageParams
     config.lograge.custom_options = lambda do |event|
       begin
         data = config.lograge.static_data
-        config.lograge.configured_loggers.inject(data) {|d, logger| d.merge(logger.to_hash(event))}
+        config.lograge.configured_loggers.inject(data) do |d, logger|
+          begin
+            d.merge(logger.to_hash(event))
+          rescue
+            d.merge("#{logger.name}-error" => "Error-processing")
+          end
+        end
       rescue => e
         Rails.logger.warn("Error logging request: #{e.message}\n#{e.backtrace.join("\n\t")}")
-        config.lograge.static_data.merge(:error => "Error logging")
+        config.lograge.static_data.merge(:error => "Error-logging")
       end
     end
 
@@ -18,6 +24,7 @@ module LogrageParams
     config.lograge.log_params = true
     config.lograge.log_browser = true
     config.lograge.log_referer = true
+    config.lograge.configured_loggers ||= []
 
     initializer 'lograge_params.add_controller_hook' do
       ActiveSupport.on_load :action_controller do
@@ -26,8 +33,7 @@ module LogrageParams
     end
 
     initializer 'lograge_params.setup_loggers' do
-      loggers = []
-      config.lograge.configured_loggers = loggers
+      loggers = config.lograge.configured_loggers
 
       if config.lograge.log_users
         require 'lograge_params/user_logger'
@@ -48,6 +54,8 @@ module LogrageParams
         require 'lograge_params/referer_logger'
         loggers << LogrageParams::RefererLogger
       end
+
+      loggers.uniq!
     end
   end
 end
