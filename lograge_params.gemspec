@@ -1,11 +1,11 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "lograge-params/version"
+require "lograge_params/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "lograge-params"
+  s.name        = "lograge_params"
   s.version     = LogrageParams::VERSION
   s.authors     = ["Hedtek Ltd.", "David Workman"]
   s.email       = ["gems@hedtek.com"]

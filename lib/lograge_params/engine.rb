@@ -19,33 +19,33 @@ module LogrageParams
     config.lograge.log_browser = true
     config.lograge.log_referer = true
 
-    initializer 'lograge-params.add_controller_hook' do
+    initializer 'lograge_params.add_controller_hook' do
       ActiveSupport.on_load :action_controller do
         ActionController::Base.send(:include, LogrageParams::Controller)
       end
     end
 
-    initializer 'lograge-params.setup_loggers' do
+    initializer 'lograge_params.setup_loggers' do
       loggers = []
       config.lograge.configured_loggers = loggers
 
       if config.lograge.log_users
-        require 'lograge-params/user_logger'
+        require 'lograge_params/user_logger'
         loggers << LogrageParams::UserLogger
       end
 
       if config.lograge.log_params
-        require 'lograge-params/params_logger'
+        require 'lograge_params/params_logger'
         loggers << LogrageParams::ParamsLogger
       end
 
       if config.lograge.log_browser
-        require 'lograge-params/browser_logger'
+        require 'lograge_params/browser_logger'
         loggers << LogrageParams::BrowserLogger
       end
 
       if config.lograge.log_referer
-        require 'lograge-params/referer_logger'
+        require 'lograge_params/referer_logger'
         loggers << LogrageParams::RefererLogger
       end
     end
