@@ -17,8 +17,6 @@ module LogrageParams
       else
         {browser: "Unknown"}
       end
-    rescue
-      {browser_logger: "Browser-Error-logging-browsers"}
     end
   end
 end

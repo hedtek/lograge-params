@@ -7,6 +7,7 @@ module LogrageParams
         capture_params(payload) if Rails.application.config.lograge.log_params
         capture_browser(payload) if Rails.application.config.lograge.log_browser
         capture_referer(payload) if Rails.application.config.lograge.log_referer
+        capture_ip(payload) if Rails.application.config.lograge.log_ips
       end
     end
 
@@ -37,6 +38,10 @@ module LogrageParams
 
     def capture_referer(payload)
       payload[:referer] = request.referer
+    end
+
+    def capture_ip(payload)
+      payload[:ip] = request.remote_ip
     end
   end
 end

@@ -24,6 +24,7 @@ module LogrageParams
     config.lograge.log_params = true
     config.lograge.log_browser = true
     config.lograge.log_referer = true
+    config.lograge.log_ip = true
     config.lograge.configured_loggers ||= []
 
     initializer 'lograge_params.add_controller_hook' do
@@ -48,6 +49,11 @@ module LogrageParams
       if config.lograge.log_browser
         require 'lograge_params/browser_logger'
         loggers << LogrageParams::BrowserLogger
+      end
+
+      if config.lograge.log_ip
+        require 'lograge_params/ip_logger'
+        loggers << LogrageParams::IPLogger
       end
 
       if config.lograge.log_referer
