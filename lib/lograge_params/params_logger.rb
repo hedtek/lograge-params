@@ -1,5 +1,5 @@
 module LogrageParams
-  module BrowserLogger
+  module ParamsLogger
     def self.to_hash(event)
       filtered_params = Rails.application.config.lograge.filter_keys
       ignored_keys = Rails.application.config.lograge.ignore_keys
