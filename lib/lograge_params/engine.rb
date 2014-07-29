@@ -19,7 +19,7 @@ module LogrageParams
     config.lograge.enabled = true
     config.lograge.static_data ||= {}
     config.lograge.ignore_keys = %w[format action controller utf8 authenticity_token commit]
-    config.lograge.filter_keys = (%w(password password_confirmation) + config.filter_parameters.map(&:to_s)).uniq
+    config.lograge.filter_keys = %w(password password_confirmation)
     config.lograge.log_users = true
     config.lograge.log_params = true
     config.lograge.log_browser = true
@@ -42,6 +42,9 @@ module LogrageParams
       end
 
       if config.lograge.log_params
+        config.lograge.filter_keys += Rails.application.config.filter_parameters.map(&:to_s)
+        config.lograge.filter_keys.uniq!
+
         require 'lograge_params/params_logger'
         loggers << LogrageParams::ParamsLogger
       end
