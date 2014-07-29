@@ -1,3 +1,4 @@
+require 'lograge'
 require "lograge_params/engine"
 require "lograge_params/controller"
 
