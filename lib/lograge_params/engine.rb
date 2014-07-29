@@ -19,7 +19,7 @@ module LogrageParams
     config.lograge.enabled = true
     config.lograge.static_data ||= {}
     config.lograge.ignore_keys = %w[format action controller utf8 authenticity_token commit]
-    config.lograge.filter_keys = %w(password password_confirmation)
+    config.lograge.filter_keys = (%w(password password_confirmation) + config.filter_parameters.map(&:to_s)).uniq
     config.lograge.log_users = true
     config.lograge.log_params = true
     config.lograge.log_browser = true
